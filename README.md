@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D坦克 - 明星玩家殿堂</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft Yahei", sans-serif;
+        }
+
+        body {
+            background: #080c1a;
+            background-image: 
+                radial-gradient(circle at 20% 10%, rgba(0, 150, 255, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 80% 90%, rgba(138, 43, 226, 0.1) 0%, transparent 40%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #fff;
+        }
+
+        /* 页面标题 */
+        .page-title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .page-title h1 {
+            font-size: 42px;
+            letter-spacing: 6px;
+            background: linear-gradient(90deg, #00d8ff, #9d00ff);
+            -webkit-background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 30px rgba(0, 200, 255, 0.5);
+            margin-bottom: 12px;
+        }
+        .page-title p {
+            color: #8ab4f8;
+            font-size: 16px;
+            letter-spacing: 2px;
+        }
+
+        /* 玩家容器 */
+        .player-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        /* 玩家卡片 科技风主体 */
+        .player-card {
+            background: rgba(15, 25, 50, 0.7);
+            border: 1px solid rgba(0, 180, 255, 0.3);
+            border-radius: 16px;
+            padding: 28px;
+            backdrop-filter: blur(8px);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+        .player-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 220, 255, 0.15), transparent);
+            transition: left 0.6s ease;
+        }
+        .player-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(157, 0, 255, 0.6);
+            box-shadow: 0 0 25px rgba(0, 180, 255, 0.4), 0 0 50px rgba(157, 0, 255, 0.2);
+        }
+        .player-card:hover::before {
+            left: 100%;
+        }
+
+        /* 头部：头像+ID区域 */
+        .card-head {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .avatar-box {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            border: 3px solid #00c8ff;
+            box-shadow: 0 0 15px #00c8ff;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .avatar-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .player-info h2 {
+            font-size: 24px;
+            color: #ffffff;
+            margin-bottom: 6px;
+        }
+        .player-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            background: linear-gradient(45deg, #9d00ff, #5000ff);
+            border-radius: 20px;
+            font-size: 12px;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        /* 简介区域 */
+        .player-desc {
+            margin: 20px 0;
+            padding: 16px;
+            background: rgba(0, 100, 180, 0.15);
+            border-left: 3px solid #00d8ff;
+            border-radius: 0 8px 8px 0;
+        }
+        .player-desc p {
+            color: #c0e8ff;
+            line-height: 1.7;
+            font-size: 15px;
+        }
+
+        /* 战力数据栏 */
+        .player-data {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 18px;
+            border-top: 1px dashed rgba(0, 180, 255, 0.3);
+        }
+        .data-item {
+            text-align: center;
+        }
+        .data-item .num {
+            font-size: 20px;
+            color: #00f0ff;
+            font-weight: bold;
+        }
+        .data-item .text {
+            font-size: 12px;
+            color: #7fa8d8;
+            margin-top: 4px;
+        }
+
+        /* 底部装饰线条 */
+        .line-decor {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #9d00ff, transparent);
+        }
+
+        /* 适配手机 */
+        @media (max-width: 768px) {
+            .page-title h1 {
+                font-size: 28px;
+            }
+            .player-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 页面标题 -->
+    <div class="page-title">
+        <h1>3D TANK 明星玩家殿堂</h1>
+        <p>顶尖车手 · 战力榜 · 传奇大神</p>
+    </div>
+
+    <!-- 玩家列表 -->
+    <div class="player-container">
+        <!-- 玩家卡片 1 -->
+        <div class="player-card">
+            <div class="line-decor"></div>
+            <div class="card-head">
+                <div class="avatar-box">
+                    <img src="https://live.staticflickr.com/65535/55293995362_b225b43e63_b.jpg" alt="玩家头像">
+                </div>
+                <div class="player-info">
+                    <h2>尹鑫水</h2>
+                    <span class="player-tag">杂种东西 | 挨打第一</span>
+                </div>
+            </div>
+            <div class="player-desc">
+                <p>尹鑫水,化名高晓辰.长期依靠舔号与赛脸进行游戏,经常拿着自己妈妈的照片进入到厕所进行一个不为人知的操作.
+最关键的是该玩家自称在家打游戏打了十几年,说自己过几天想在Boss直聘找个班上,想去当个警察,结果被他人暗地嘲笑他应该当个保安也能穿制服后他进行了一个生气的脸部表情变化,无法做到表情管理.每当你提起他的实名:尹鑫水,他就会进行不痛不痒的语言攻击.此类玩家属于精神病玩家,你可以尝试将其当作电子宠物进行肆意挑逗玩耍.</p>
+            </div>
+            <div class="player-data">
+                <div class="data-item">
+                    <div class="num">98652</div>
+                    <div class="text">总战力</div>
+                </div>
+                <div class="data-item">
+                    <div class="num">12860</div>
+                    <div class="text">胜利场次</div>
+                </div>
+                <div class="data-item">
+                    <div class="num">S+</div>
+                    <div class="text">综合评级</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 玩家卡片 2 -->
+        <div class="player-card">
+            <div class="line-decor"></div>
+            <div class="card-head">
+                <div class="avatar-box">
+                    <img src="https://live.staticflickr.com/65535/55294935041_6d64f8c4f1_b.jpg" alt="玩家头像">
+                </div>
+                <div class="player-info">
+                    <h2>张子涵</h2>
+                    <span class="player-tag">黄片一哥 | 导管战神</span>
+                </div>
+            </div>
+            <div class="player-desc">
+                <p>张子涵，化名（蛋儿了）绰号：老杰了，喜欢在寂寞的时候看抖音擦边视频，并且还会进行一个视频转发，诱导别人观看擦边内容，获得情绪价值，晚上还会进行一个梦淫导致小内裤湿湿滴.</p>
+            </div>
+            <div class="player-data">
+                <div class="data-item">
+                    <div class="num">87210</div>
+                    <div class="text">总导管</div>
+                </div>
+                <div class="data-item">
+                    <div class="num">10520</div>
+                    <div class="text">成功射出</div>
+                </div>
+                <div class="data-item">
+                    <div class="num">S</div>
+                    <div class="text">综合评级</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 玩家卡片 3 -->
+        <div class="player-card">
+            <div class="line-decor"></div>
+            <div class="card-head">
+                <div class="avatar-box">
+                    <img src="https://live.staticflickr.com/65535/55295234318_0cf5d16910_z.jpg" alt="玩家头像">
+                </div>
+                <div class="player-info">
+                    <h2>顾雨凡</h2>
+                    <span class="player-tag">美女收藏师 | 偷摸内射王</span>
+                </div>
+            </div>
+            <div class="player-desc">
+                <p>顾雨凡，化名（鹅蛋）绰号：辉宗，动漫欧美剧创始人，主打的是潜伏战术，擅长利用地形，偷偷看周围有没有可疑的人，防止小鸡暴露，进行一个导管成功</p>
+            </div>
+            <div class="player-data">
+                <div class="data-item">
+                    <div class="num">92360</div>
+                    <div class="text">总导管</div>
+                </div>
+                <div class="data-item">
+                    <div class="num">11680</div>
+                    <div class="text">成功射出</div>
+                </div>
+                <div class="data-item">
+                    <div class="num">S+</div>
+                    <div class="text">综合评级</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 玩家卡片 4 -->
+        <div class="player-card">
+            <div class="line-decor"></div>
+            <div class="card-head">
+                <div class="avatar-box">
+                    <img src="https://live.staticflickr.com/65535/55295524855_3b570c6dce_z.jpg" alt="玩家头像">
+                </div>
+                <div class="player-info">
+                    <h2>顾浩噗</h2>
+                    <span class="player-tag">鞋垫天花板</span>
+                </div>
+            </div>
+            <div class="player-desc">
+                <p>顾浩噗，化名（啊屁）绰号：光明，曾担任鞋垫工程师，主研究病毒性细菌鞋垫，极致输出流派，单发伤害全服顶尖，自动出现对方脚下，进行一个自动感染至死亡，堪称病毒王中王</p>
+            </div>
+            <div class="player-data">
+                <div class="data-item">
+                    <div class="num">-250</div>
+                    <div class="text">总战力</div>
+                </div>
+                <div class="data-item">
+                    <div class="num">81537</div>
+                    <div class="text">毒死几人</div>
+                </div>
+                <div class="data-item">
+                    <div class="num">S</div>
+                    <div class="text">综合评级</div>
+                </div>
+            </div>
+        </div>
+        <!-- 玩家卡片 5 -->
+        <div class="player-card">
+            <div class="line-decor"></div>
+            <div class="card-head">
+                <div class="avatar-box">
+                    <img src="https://picsum.photos/200/200?random=3" alt="玩家头像">
+                </div>
+                <div class="player-info">
+                    <h2>破晓指挥官</h2>
+                    <span class="player-tag">战队队长 | 战术大师</span>
+                </div>
+            </div>
+            <div class="player-desc">
+                <p>知名战队创始人，主打团队战术配合，擅长地形利用与阵型布置。带领战队多次登顶联赛，圈内公认最强指挥。</p>
+            </div>
+            <div class="player-data">
+                <div class="data-item">
+                    <div class="num">92360</div>
+                    <div class="text">总战力</div>
+                </div>
+                <div class="data-item">
+                    <div class="num">11680</div>
+                    <div class="text">胜利场次</div>
+                </div>
+                <div class="data-item">
+                    <div class="num">S+</div>
+                    <div class="text">综合评级</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
